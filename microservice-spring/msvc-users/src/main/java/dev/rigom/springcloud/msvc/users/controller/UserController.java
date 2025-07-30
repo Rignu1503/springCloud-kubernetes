@@ -2,14 +2,15 @@ package dev.rigom.springcloud.msvc.users.controller;
 
 import dev.rigom.springcloud.msvc.users.models.entity.User;
 import dev.rigom.springcloud.msvc.users.service.IUSerService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController("/users")
 @AllArgsConstructor
@@ -36,16 +37,40 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> save(@RequestBody User user) {
+    public ResponseEntity<?> save(
+            @Valid @RequestBody User user, BindingResult bindingResult) {
+
+        if(userService.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest()
+                    .body(Collections.singletonMap("error", "Email already exists"));
+        }
+
+        if (bindingResult.hasErrors()) {
+            return validatedRequest(bindingResult);
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(user));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<?> update(
+            @Valid @PathVariable Long id, @RequestBody User user, BindingResult bindingResult) {
+
+
+        if (bindingResult.hasErrors()) {
+            return validatedRequest(bindingResult);
+        }
+
         Optional<User> existingUser = userService.findById(id);
 
         if (existingUser.isPresent()) {
             User userUpdate = existingUser.get();
+
+            if(!user.getEmail().equalsIgnoreCase(userUpdate.getEmail()) && userService.findByEmail(user.getEmail()).isPresent()) {
+                return ResponseEntity.badRequest()
+                        .body(Collections.singletonMap("error", "Email already exists"));
+            }
+
             userUpdate.setName(user.getName());
             userUpdate.setEmail(user.getEmail());
             userUpdate.setPassword(user.getPassword());
@@ -65,6 +90,15 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private static ResponseEntity<Map<String, String>> validatedRequest(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+
+        bindingResult.getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), "error: " + error.getDefaultMessage());
+        });
+        return ResponseEntity.badRequest().body(errors);
     }
 
 }

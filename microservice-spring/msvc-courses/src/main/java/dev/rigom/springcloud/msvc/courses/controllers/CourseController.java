@@ -2,19 +2,24 @@ package dev.rigom.springcloud.msvc.courses.controllers;
 
 import dev.rigom.springcloud.msvc.courses.entity.Course;
 import dev.rigom.springcloud.msvc.courses.service.ICourseService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
 public class CourseController {
 
+    @Autowired
     private final ICourseService courseService;
 
     @GetMapping
@@ -33,14 +38,25 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<Course> save(@RequestBody Course course) {
+    public ResponseEntity<?> save(
+            @Valid @RequestBody Course course, BindingResult bindingResult) {
+        
+        if (bindingResult.hasErrors()) {
+
+            return validatedRequest(bindingResult);
+        }
 
         Course savedCourse = courseService.save(course);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedCourse);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Course> update(@PathVariable Long id, @RequestBody Course course) {
+    public ResponseEntity<?> update(@Valid @PathVariable Long id, @RequestBody Course course, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            return validatedRequest(bindingResult);
+        }
 
         Optional<Course> existingCourse = courseService.findById(id);
 
@@ -66,6 +82,16 @@ public class CourseController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+
+    private static ResponseEntity<Map<String, String>> validatedRequest(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+
+        bindingResult.getFieldErrors().forEach(error -> {
+            errors.put(error.getField(), "error: " + error.getDefaultMessage());
+        });
+        return ResponseEntity.badRequest().body(errors);
     }
 
 }

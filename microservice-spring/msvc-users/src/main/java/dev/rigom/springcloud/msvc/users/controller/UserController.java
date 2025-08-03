@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-@RestController("/users")
+@RestController
+@RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
 
@@ -91,6 +92,13 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/users-by-course")
+    public ResponseEntity<?> findAllByIds(@RequestParam List<Long> ids) {
+
+        return ResponseEntity.ok(userService.findAllByIds(ids));
+    }
+
 
     private static ResponseEntity<Map<String, String>> validatedRequest(BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();

@@ -1,7 +1,9 @@
 package dev.rigom.springcloud.msvc.courses.controllers;
 
-import dev.rigom.springcloud.msvc.courses.entity.Course;
+import dev.rigom.springcloud.msvc.courses.models.dto.User;
+import dev.rigom.springcloud.msvc.courses.models.entity.Course;
 import dev.rigom.springcloud.msvc.courses.service.ICourseService;
+import feign.FeignException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
+@RequestMapping("/courses")
 @AllArgsConstructor
 public class CourseController {
 
@@ -32,7 +32,7 @@ public class CourseController {
     @GetMapping("/{id}")
     public ResponseEntity<Course> findById(@PathVariable Long id) {
 
-        return courseService.findById(id)
+        return courseService.findByIdWithUsers(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -83,6 +83,83 @@ public class CourseController {
             return ResponseEntity.notFound().build();
         }
     }
+    //Metodos del microservicio msvc-users
+
+    @PutMapping("assign/{courseId}")
+    public ResponseEntity<?> assingUser(
+            @RequestBody User user, @PathVariable Long courseId
+            ){
+        Optional<User> assingUser;
+
+        try {
+           assingUser = courseService.assignUser(user, courseId);
+        }catch (FeignException e){
+            
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "User not found " + e.getMessage()));
+        }   
+        
+        if (assingUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(assingUser.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("remove/{courseId}")
+    public ResponseEntity<?> deleteUserByCourse(
+            @RequestBody User user, @PathVariable Long courseId
+    ){
+        Optional<User> assingUser;
+
+        try {
+            assingUser = courseService.removeUser(user, courseId);
+        }catch (FeignException e){
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "User not found " + e.getMessage()));
+        }
+
+        if (assingUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(assingUser.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("add/{courseId}")
+    public ResponseEntity<?> addUser(
+            @RequestBody User user, @PathVariable Long courseId
+    ){
+        Optional<User> assingUser;
+
+        try {
+            assingUser = courseService.AddUser(user, courseId);
+        }catch (FeignException e){
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", "User not add " + e.getMessage()));
+        }
+
+        if (assingUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(assingUser.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/delete-user-course/{userId}")
+    public ResponseEntity<?> deleteCourseByUserId(@PathVariable Long userId) {
+
+        try {
+            courseService.deleteCourseByUserId(userId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error deleting user from courses: " + e.getMessage()));
+        }
+    }
+
 
 
     private static ResponseEntity<Map<String, String>> validatedRequest(BindingResult bindingResult) {

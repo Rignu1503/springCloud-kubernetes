@@ -106,6 +106,7 @@ public class UserController {
         bindingResult.getFieldErrors().forEach(error -> {
             errors.put(error.getField(), "error: " + error.getDefaultMessage());
         });
+
         return ResponseEntity.badRequest().body(errors);
     }
 

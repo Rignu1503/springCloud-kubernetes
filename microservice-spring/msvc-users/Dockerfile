@@ -1,5 +1,5 @@
 #Primero se debe crear la imagen base de Docker con el comando:
-FROM openjdk:18.0.2
+FROM openjdk:18-jdk-alpine AS builder
 
 #Creamos nuestro directorio de trabajo(todos los comandos siguientes se ejecutaran en este directorio)
 WORKDIR /app/msvc-users
@@ -19,9 +19,16 @@ COPY ./msvc-users/src ./src
 
 RUN ./mvnw clean package -DskipTests
 
+FROM openjdk:18-jdk-alpine
+
+#Segundo se crea el directorio de trabajo
+WORKDIR /app
+
+COPY --from=builder /app/msvc-users/target/msvc-users-0.0.1-SNAPSHOT.jar .
+
 #Cuarto se ejecuta el comando para iniciar la aplicacion en el puerto 8001
 EXPOSE 8001
 
 #Por ultimo se define el comando que se ejecutara al iniciar el contenedor
-ENTRYPOINT ["java", "-jar", "./target/msvc-users-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "msvc-users-0.0.1-SNAPSHOT.jar"]
 

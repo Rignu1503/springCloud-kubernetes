@@ -26,8 +26,10 @@ WORKDIR /app
 
 COPY --from=builder /app/msvc-users/target/msvc-users-0.0.1-SNAPSHOT.jar .
 
+#Variable de entorno
+ENV PORT 8001
 #Cuarto se ejecuta el comando para iniciar la aplicacion en el puerto 8001
-EXPOSE 8001
+EXPOSE $PORT
 
 #Por ultimo se define el comando que se ejecutara al iniciar el contenedor
 #El ENTRYPOINT es la instruccion estricta que no se puede sobreescribir al iniciar el contenedor y el CMD si se puede sobreescribir

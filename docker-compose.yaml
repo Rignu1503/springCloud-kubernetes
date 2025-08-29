@@ -1,0 +1,85 @@
+version: "3.9" #version de docker-compose
+services:
+  mysql9:
+    container_name: mysql9
+    image: mysql:8 #nombre de la imagen
+
+    ports:
+      - "3307:3306"
+
+    environment:
+        MYSQL_ROOT_PASSWORD: Rig0bert0.
+        MYSQL_DATABASE: msvc_users
+
+    volumes:
+      - data_mysql:/var/lib/mysql
+
+    restart: always
+
+    networks:
+      - spring
+
+  postgres14:
+    container_name: postgres14
+    image: postgres:14-alpine
+
+    ports:
+      - "5532:5432"
+
+    environment:
+        POSTGRES_PASSWORD: Rig0bert0.
+        POSTGRES_DB: msvc_courses
+
+    volumes:
+      - data_postgres:/var/lib/postgresql/data
+
+    restart: always
+
+    networks:
+      - spring
+
+  msvc-users:
+    container_name: msvc-users
+    build: #construimos la imagen a partir del dockerfile si no esta construida
+      context: ./msvc-users
+      dockerfile: Dockerfile
+
+    ports:
+      - "8001:8001"
+
+    networks:
+      - spring
+
+    #Esto se agrega para que el servicio espere a que mysql este listo
+    depends_on:
+        - mysql9
+
+    restart: always
+
+  msvc-courses:
+    container_name: msvc-courses
+    build:
+      context: ./msvc-courses
+      dockerfile: Dockerfile
+
+    ports:
+      - "8002:8002"
+
+    networks:
+      - spring
+
+    depends_on:
+      - postgres14
+      - msvc-users
+
+    restart: always
+
+volumes: #definimos los volúmenes para persistencia de datos
+    data_mysql:
+      name : data_mysql
+    data_postgres:
+      name : data_postgres
+
+#definimos la red(no es necesario ya que por defecto todos los servicios estan en la misma red)
+networks:
+  spring:

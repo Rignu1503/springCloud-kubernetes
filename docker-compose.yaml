@@ -41,8 +41,8 @@ services:
   msvc-users:
     container_name: msvc-users
     build: #construimos la imagen a partir del dockerfile si no esta construida
-      context: ./msvc-users
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./msvc-users/Dockerfile
 
     ports:
       - "8001:8001"
@@ -59,8 +59,8 @@ services:
   msvc-courses:
     container_name: msvc-courses
     build:
-      context: ./msvc-courses
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./msvc-courses/Dockerfile
 
     ports:
       - "8002:8002"

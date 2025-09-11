@@ -1,0 +1,30 @@
+apiVersion: apps/v1        # Versión de la API que se usa para crear el recurso Deployment
+kind: Deployment           # Tipo de recurso: un Deployment (gestiona Pods)
+
+metadata:
+  name : postgres14        # Nombre del Deployment (identificador único en el cluster)
+
+spec:
+  replicas: 1              # Número de Pods que se van a crear (en este caso, 1)
+  selector:
+    matchLabels:           # Selector que busca Pods con estas etiquetas
+      app: postgres        # Debe coincidir con el label del template abajo
+
+  template:                # Plantilla del Pod que creará el Deployment
+    metadata:
+      labels:              # Etiquetas del Pod (deben coincidir con el selector)
+        app: postgres      # Se usará para identificar los Pods de este Deployment
+
+    spec:                  # Especificación del Pod
+      containers:          # Lista de contenedores dentro del Pod
+        - name: postgres14 # Nombre del contenedor
+          image: postgres:14-alpine  # Imagen de Docker que usará el contenedor (Postgres 14 liviano)
+
+          ports:
+            - containerPort: 5432    # Puerto expuesto dentro del contenedor (Postgres por defecto)
+
+          env:              # Variables de entorno del contenedor
+            - name: POSTGRES_PASSWORD
+              value: "Rig0bert0."    # Contraseña del usuario postgres
+            - name: POSTGRES_DB
+              value: "msvc_courses"  # Nombre de la base de datos que se crea al inicio

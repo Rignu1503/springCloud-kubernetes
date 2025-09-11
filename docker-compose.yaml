@@ -80,6 +80,6 @@ volumes: #definimos los volúmenes para persistencia de datos
     data_postgres:
       name : data_postgres
 
-#definimos la red(no es necesario ya que por defecto todos los servicios estan en la misma red)
+#definimos la red(no es necesario ya que por defecto todos lo12s servicios estan en la misma red)
 networks:
   spring:

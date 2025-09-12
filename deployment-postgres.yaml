@@ -28,3 +28,20 @@ spec:
               value: "Rig0bert0."    # Contraseña del usuario postgres
             - name: POSTGRES_DB
               value: "msvc_courses"  # Nombre de la base de datos que se crea al inicio
+
+          volumeMounts:   # Montaje del volumen dentro del contenedor
+            - name: data-postgres      # Nombre del volumen (debe coincidir con el definido abajo)
+              mountPath: /var/lib/postgresql/data # Ruta dentro del contenedor donde se montará el volumen
+
+      volumes:
+        - name: data-postgres
+          persistentVolumeClaim:
+            claimName: postgres-pvc #Debe coincidir con el nombre del PVC
+
+
+#      ################### hostPath ###################
+#      volumes:
+#        - name: data-postgres          # Nombre del volumen
+#          hostPath:
+#            path: /var/lib/postgresql/data # Ruta en el nodo anfitrión donde se almacenarán los datos
+#            type: DirectoryOrCreate       # Si no existe, se crea el directorio

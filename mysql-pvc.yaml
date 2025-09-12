@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+
+metadata:
+  name: mysql-pvc
+
+spec:
+  volumeName: mysql-pv #Debe coincidir con el nombre del PV
+  accessModes:
+    - ReadWriteOnce #Debe coincidir con el accessModes del PV
+
+  storageClassName: standard #Debe coincidir con el storageClassName del PV
+  resources:
+    requests:
+      storage: 1Gi #Debe ser menor o igual que la capacidad del PV
+

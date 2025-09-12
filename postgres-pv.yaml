@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+
+metadata:
+  name: postgres-pv
+
+spec:
+  capacity:
+    storage: 2Gi
+
+  volumeMode: Filesystem
+  storageClassName: standard #Debe coincidir con el storageClassName del PVC (se usa <kubectl get sc> para ver los storage class disponibles)
+  accessModes:
+    - ReadWriteOnce
+
+  hostPath:
+    path: /var/lib/postgresql/data
+    type: DirectoryOrCreate

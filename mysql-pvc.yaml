@@ -13,4 +13,3 @@ spec:
   resources:
     requests:
       storage: 1Gi #Debe ser menor o igual que la capacidad del PV
-

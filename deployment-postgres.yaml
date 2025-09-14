@@ -25,9 +25,16 @@ spec:
 
           env:              # Variables de entorno del contenedor
             - name: POSTGRES_PASSWORD
-              value: "Rig0bert0."    # Contraseña del usuario postgres
+              valueFrom:
+                secretKeyRef:
+                  name : msvc-courses  # Nombre del ConfigMap donde se encuentra la variable
+                  key  : password      # Clave dentro del ConfigMap que contiene el valor
+
             - name: POSTGRES_DB
-              value: "msvc_courses"  # Nombre de la base de datos que se crea al inicio
+              valueFrom:
+                configMapKeyRef:
+                  name: msvc-courses  # Nombre del ConfigMap donde se encuentra la variable
+                  key: database      # Clave dentro del ConfigMap que contiene el valor
 
           volumeMounts:   # Montaje del volumen dentro del contenedor
             - name: data-postgres      # Nombre del volumen (debe coincidir con el definido abajo)

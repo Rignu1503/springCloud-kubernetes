@@ -10,6 +10,11 @@ data:
   database: msvc_users
   username: root
   #password: Rig0bert0.
+
+  #Sirve para aplicar configuraciones de forma esterna al applicacion.prpoperties
+  application.yaml: |-
+    config:
+      texto: "Hola desde el configMap"
 ---
 ##Asi se puede tener varias configuraciones en un solo archivo
 apiVersion: v1

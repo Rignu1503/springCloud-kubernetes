@@ -1,0 +1,20 @@
+# Configuración de rutas en el gateway
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: msvc-courses
+              uri: lb://msvc-courses
+              predicates:
+                - Path=/api/courses/**
+              filters:
+                - StripPrefix=2  # Elimina los primeros 2 segmentos del path (/api/courses)
+
+            - id: msvc-users
+              uri: lb://msvc-users
+              predicates:
+                - Path=/api/**
+              filters:
+                - StripPrefix=1  # Elimina el primer segmento del path (/api)
